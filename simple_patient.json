@@ -1,0 +1,11 @@
+{
+  "name": "Test Patient",
+  "mobile": "+91 98765 43210",
+  "uhid": "UHID001",
+  "gender": "male",
+  "dob": "1985-03-15",
+  "address": "123 Test Street",
+  "state": "Maharashtra",
+  "city": "Mumbai",
+  "pincode": "400001"
+}

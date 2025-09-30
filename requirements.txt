@@ -1,0 +1,76 @@
+# Flask and Web Framework
+Flask==2.3.3
+Flask-CORS==4.0.0
+Flask-Limiter==3.5.0
+Werkzeug==2.3.7
+
+# Firebase and Google Cloud
+firebase-admin==6.2.0
+google-cloud-firestore==2.11.1
+google-cloud-storage==2.10.0
+google-auth==2.23.3
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.1.1
+
+# Authentication and Security
+PyJWT==2.8.0
+cryptography==41.0.4
+bcrypt==4.0.1
+passlib==1.7.4
+
+# Data Validation and Serialization
+jsonschema==4.19.0
+
+
+# HTTP and API
+requests==2.31.0
+urllib3==2.0.4
+
+# Date and Time
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Utilities
+python-dotenv==1.0.0
+click==8.1.7
+#gunicorn==21.2.0
+
+# Development and Testing
+pytest==7.4.2
+pytest-flask==1.2.0
+pytest-cov==4.1.0
+black==23.7.0
+flake8==6.0.0
+isort==5.12.0
+
+# Monitoring and Logging
+structlog==23.1.0
+sentry-sdk[flask]==1.32.0
+
+# Data Processing
+#pandas==2.1.1
+#numpy==1.25.2
+
+# File Processing
+#Pillow==10.0.0
+#python-magic==0.4.27
+
+# Email
+Flask-Mail==0.9.1
+
+# Caching
+#Flask-Caching==2.1.0
+
+
+
+
+# API Documentation
+Flask-RESTX==1.1.0
+flask-swagger-ui==4.11.1
+
+# Environment Management
+python-decouple==3.8
+
+# PDF Generation
+weasyprint==60.2
+pdfkit==1.0.0
