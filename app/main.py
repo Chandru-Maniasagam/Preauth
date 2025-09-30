@@ -22,11 +22,7 @@ from preauthprocess import preauth_process_bp
 def create_app(config_name: str = None) -> Flask:
     """Create and configure Flask application"""
     
-    # Get the project root directory
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    static_folder = os.path.join(project_root, 'static')
-    
-    app = Flask(__name__, static_folder=static_folder, static_url_path='/static')
+    app = Flask(__name__)
     
     # Set secret keys for sessions and JWT
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'Flask-Session-Secret-Key-2025-RCM-SaaS-Application-Development-Environment-Change-In-Production')
@@ -68,50 +64,12 @@ def create_app(config_name: str = None) -> Flask:
     # Configure logging
     configure_logging(app)
     
-    # Root endpoint
+    # Root endpoint - API only, no frontend
     @app.route('/')
     def index():
-        """Serve the main application page"""
-        try:
-            return app.send_static_file('index.html')
-        except Exception as e:
-            app.logger.error(f"Error serving static file: {e}")
-            # Fallback HTML response
-            return """
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>RCM SaaS Application</title>
-                <style>
-                    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
-                    .container { background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-                    h1 { color: #2c3e50; text-align: center; }
-                    .status { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #c3e6cb; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>🏥 RCM SaaS Application</h1>
-                    <div class="status">
-                        <strong>✅ Application Status:</strong> Running successfully
-                    </div>
-                    <p>Welcome to the Revenue Cycle Management SaaS Application for Indian Hospitals.</p>
-                    <p><strong>Available Endpoints:</strong></p>
-                    <ul>
-                        <li><strong>GET</strong> /health - Health check endpoint</li>
-                        <li><strong>GET</strong> /api/v1/ - API documentation</li>
-                        <li><strong>POST</strong> /preauth-form - Submit pre-authorization form</li>
-                        <li><strong>GET</strong> /api/notifications - Notification management</li>
-                        <li><strong>GET</strong> /preauth-process - Pre-authorization process management</li>
-                    </ul>
-                    <p><strong>Version:</strong> 1.0.0</p>
-                    <p><strong>Environment:</strong> Development</p>
-                </div>
-            </body>
-            </html>
-            """, 200
+        """API root endpoint - redirect to API documentation"""
+        from flask import redirect
+        return redirect('/api/v1/', code=302)
     
     # Health check endpoint
     @app.route('/health')
