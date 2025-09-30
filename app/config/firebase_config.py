@@ -32,15 +32,21 @@ class FirebaseConfig:
         if service_account_json:
             try:
                 return json.loads(service_account_json)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                print(f"Error parsing FIREBASE_SERVICE_ACCOUNT_KEY: {e}")
                 pass
         
         # Fallback to file path (for local development)
         if os.path.exists(cls.SERVICE_ACCOUNT_KEY_PATH):
-            with open(cls.SERVICE_ACCOUNT_KEY_PATH, 'r') as f:
-                return json.load(f)
+            try:
+                with open(cls.SERVICE_ACCOUNT_KEY_PATH, 'r') as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, IOError) as e:
+                print(f"Error reading service account file: {e}")
+                pass
         
-        # If neither is available, return None
+        # If neither is available, return None and log warning
+        print("WARNING: No Firebase service account credentials found. Firebase features will be disabled.")
         return None
     
     # Database Configuration

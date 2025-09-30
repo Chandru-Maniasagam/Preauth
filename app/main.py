@@ -41,10 +41,11 @@ def create_app(config_name: str = None) -> Flask:
     # Initialize extensions
     CORS(app, origins=app.config.get('CORS_ORIGINS', '*'))
     
-    # Initialize rate limiter
+    # Initialize rate limiter with proper storage
     limiter = Limiter(
         key_func=get_remote_address,
-        default_limits=[app.config.get('RATELIMIT_DEFAULT', '1000 per hour')]
+        default_limits=[app.config.get('RATELIMIT_DEFAULT', '1000 per hour')],
+        storage_uri=app.config.get('RATELIMIT_STORAGE_URL', 'memory://')
     )
     limiter.init_app(app)
     
@@ -119,4 +120,6 @@ def configure_logging(app: Flask) -> None:
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Only run in debug mode if explicitly set
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)

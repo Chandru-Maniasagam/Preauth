@@ -8,6 +8,8 @@ services:
     envVars:
       - key: FLASK_ENV
         value: production
+      - key: FLASK_DEBUG
+        value: "false"
       - key: PORT
         value: 10000
       - key: SECRET_KEY
@@ -15,11 +17,11 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: FIREBASE_PROJECT_ID
-        sync: false
+        value: mv20-a1a09
       - key: FIREBASE_STORAGE_BUCKET
-        sync: false
+        value: gs://mv20-a1a09.firebasestorage.app
       - key: DATABASE_URL
-        sync: false
+        value: https://mv20-a1a09-default-rtdb.firebaseio.com/
       - key: FIREBASE_SERVICE_ACCOUNT_KEY
         sync: false
       - key: CORS_ORIGINS
@@ -28,3 +30,5 @@ services:
         value: INFO
       - key: RATELIMIT_DEFAULT
         value: "1000 per hour"
+      - key: RATELIMIT_STORAGE_URL
+        value: "memory://"
