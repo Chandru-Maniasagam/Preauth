@@ -39,7 +39,21 @@ def create_app(config_name: str = None) -> Flask:
         app.config.from_object('app.config.settings.DevelopmentConfig')
     
     # Initialize extensions
-    CORS(app, origins=app.config.get('CORS_ORIGINS', '*'))
+    CORS(
+        app,
+        resources={r"/*": {"origins": app.config.get('CORS_ORIGINS', '*')}},
+        supports_credentials=True,
+        methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=[
+            "Content-Type",
+            "Authorization",
+            "X-Requested-With",
+            "X-Hospital-ID",
+            "X-User-ID",
+            "X-User-Name"
+        ],
+        expose_headers=["Content-Type", "Authorization"]
+    )
     
     # Initialize rate limiter with proper storage
     limiter = Limiter(

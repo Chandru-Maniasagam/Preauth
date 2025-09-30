@@ -4,6 +4,7 @@ Integrates HTML form with claims API for seamless data handling
 """
 
 from flask import Blueprint, render_template_string, request, jsonify, redirect, url_for, flash, make_response
+from flask_cors import cross_origin
 from datetime import datetime
 import logging
 import sys
@@ -606,6 +607,29 @@ def submit_preauth_form():
         
         flash('An error occurred while submitting the form. Please try again.', 'error')
         return redirect(url_for('preauth_form.show_preauth_form', hospital_id=hospital_id))
+
+# Alias route to support frontend expectation: /preauth-form/submit
+@preauth_form_bp.route('/preauth-form/submit', methods=['POST', 'OPTIONS'])
+@cross_origin(
+    origins=["http://localhost:5173"],
+    supports_credentials=True,
+    methods=["POST", "OPTIONS"],
+    allow_headers=[
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "X-Hospital-ID",
+        "X-User-ID",
+        "X-User-Name"
+    ]
+)
+def submit_preauth_form_alias():
+    """Alias that forwards to submit_preauth_form and properly handles CORS preflight"""
+    if request.method == 'OPTIONS':
+        # Flask-CORS will add the appropriate headers
+        return make_response(("", 204))
+    # Forward POST to the existing handler
+    return submit_preauth_form()
 
 # HTML Template for the Pre-Authorisation Form
 PREAUTH_FORM_TEMPLATE = '''<!DOCTYPE html>
