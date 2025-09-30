@@ -39,9 +39,13 @@ def create_app(config_name: str = None) -> Flask:
         app.config.from_object('app.config.settings.DevelopmentConfig')
     
     # Initialize extensions
+    cors_origins = app.config.get('CORS_ORIGINS', '*')
+    if isinstance(cors_origins, str):
+        cors_origins = [origin.strip() for origin in cors_origins.split(',')]
+    
     CORS(
         app,
-        resources={r"/*": {"origins": app.config.get('CORS_ORIGINS', '*')}},
+        resources={r"/*": {"origins": cors_origins}},
         supports_credentials=True,
         methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=[

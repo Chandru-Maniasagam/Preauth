@@ -25,7 +25,7 @@ services:
       - key: FIREBASE_SERVICE_ACCOUNT_KEY
         sync: false
       - key: CORS_ORIGINS
-        value: "*"
+        value: "http://localhost:5173,https://my-flask-api.onrender.com"
       - key: LOG_LEVEL
         value: INFO
       - key: RATELIMIT_DEFAULT
