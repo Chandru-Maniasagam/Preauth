@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCM SaaS Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .status {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+        .endpoints {
+            margin-top: 30px;
+        }
+        .endpoint {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+            border-radius: 3px;
+        }
+        .method {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 RCM SaaS Application</h1>
+        
+        <div class="status">
+            <strong>✅ Application Status:</strong> Running successfully on Render
+        </div>
+        
+        <p>Welcome to the Revenue Cycle Management SaaS Application for Indian Hospitals. This application provides comprehensive pre-authorization management services.</p>
+        
+        <div class="endpoints">
+            <h3>Available Endpoints:</h3>
+            
+            <div class="endpoint">
+                <span class="method">GET</span> /health - Health check endpoint
+            </div>
+            
+            <div class="endpoint">
+                <span class="method">GET</span> /api/v1/ - API documentation
+            </div>
+            
+            <div class="endpoint">
+                <span class="method">POST</span> /preauth-form - Submit pre-authorization form
+            </div>
+            
+            <div class="endpoint">
+                <span class="method">GET</span> /api/notifications - Notification management
+            </div>
+            
+            <div class="endpoint">
+                <span class="method">GET</span> /preauth-process - Pre-authorization process management
+            </div>
+        </div>
+        
+        <p><strong>Version:</strong> 1.0.0</p>
+        <p><strong>Environment:</strong> Production</p>
+    </div>
+</body>
+</html>

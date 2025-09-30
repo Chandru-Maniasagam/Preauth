@@ -20,6 +20,7 @@ passlib==1.7.4
 
 # Data Validation and Serialization
 jsonschema==4.19.0
+phonenumbers==8.13.25
 
 
 # HTTP and API
@@ -33,7 +34,7 @@ pytz==2023.3
 # Utilities
 python-dotenv==1.0.0
 click==8.1.7
-#gunicorn==21.2.0
+gunicorn==21.2.0
 
 # Development and Testing
 pytest==7.4.2

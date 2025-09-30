@@ -24,10 +24,17 @@ class FirebaseClient:
         try:
             # Check if Firebase app is already initialized
             if not firebase_admin._apps:
-                cred = credentials.Certificate(FirebaseConfig.SERVICE_ACCOUNT_KEY_PATH)
-                self.app = firebase_admin.initialize_app(cred, {
-                    'storageBucket': FirebaseConfig.STORAGE_BUCKET
-                })
+                # Get service account credentials
+                service_account_info = FirebaseConfig.get_service_account_credentials()
+                
+                if service_account_info:
+                    cred = credentials.Certificate(service_account_info)
+                    self.app = firebase_admin.initialize_app(cred, {
+                        'storageBucket': FirebaseConfig.STORAGE_BUCKET
+                    })
+                else:
+                    logging.warning("No Firebase service account credentials found")
+                    return
             else:
                 self.app = firebase_admin.get_app()
             

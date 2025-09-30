@@ -8,6 +8,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import logging
 import os
+from datetime import datetime
 
 from app.config import AppConfig, FirebaseConfig, StorageConfig
 from app.database.firebase_client import FirebaseClient
@@ -15,24 +16,27 @@ from app.storage.firebase_storage import FirebaseStorageClient
 from app.api.v1.routes import v1_bp
 from Preauthform import preauth_form_bp
 from Preauthregistered_Notification import preauth_notification_bp
-from notification_test_page import notification_test_bp
 from preauthprocess import preauth_process_bp
 
 
 def create_app(config_name: str = None) -> Flask:
     """Create and configure Flask application"""
     
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static', static_url_path='/static')
     
     # Set secret keys for sessions and JWT
-    app.config['SECRET_KEY'] = 'Flask-Session-Secret-Key-2025-RCM-SaaS-Application-Development-Environment-Change-In-Production'
-    app.config['JWT_SECRET_KEY'] = 'JWT-Token-Secret-Key-2025-RCM-SaaS-Application-Development-Environment-Change-In-Production'
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'Flask-Session-Secret-Key-2025-RCM-SaaS-Application-Development-Environment-Change-In-Production')
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'JWT-Token-Secret-Key-2025-RCM-SaaS-Application-Development-Environment-Change-In-Production')
     
     # Load configuration
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
     
-    app.config.from_object(f'config.settings.{config_name.title()}Config')
+    try:
+        app.config.from_object(f'app.config.settings.{config_name.title()}Config')
+    except ImportError:
+        # Fallback to development config if specific config not found
+        app.config.from_object('app.config.settings.DevelopmentConfig')
     
     # Initialize extensions
     CORS(app, origins=app.config.get('CORS_ORIGINS', '*'))
@@ -55,16 +59,38 @@ def create_app(config_name: str = None) -> Flask:
     app.register_blueprint(v1_bp, url_prefix=AppConfig.API_PREFIX)
     app.register_blueprint(preauth_form_bp)
     app.register_blueprint(preauth_notification_bp, url_prefix='/api/notifications')
-    app.register_blueprint(notification_test_bp)
     app.register_blueprint(preauth_process_bp, url_prefix='/preauth-process')
     
     # Configure logging
     configure_logging(app)
     
+    # Root endpoint
+    @app.route('/')
+    def index():
+        """Serve the main application page"""
+        return app.send_static_file('index.html')
+    
     # Health check endpoint
     @app.route('/health')
     def health_check():
-        return {'status': 'healthy', 'version': '1.0.0'}
+        """Health check endpoint for monitoring"""
+        try:
+            # Check if Firebase client is initialized
+            firebase_status = 'healthy' if hasattr(app, 'firebase_client') else 'unhealthy'
+            
+            return {
+                'status': 'healthy',
+                'version': '1.0.0',
+                'environment': os.environ.get('FLASK_ENV', 'development'),
+                'firebase': firebase_status,
+                'timestamp': str(datetime.now())
+            }
+        except Exception as e:
+            return {
+                'status': 'unhealthy',
+                'error': str(e),
+                'timestamp': str(datetime.now())
+            }, 500
     
     return app
 
@@ -88,6 +114,8 @@ def configure_logging(app: Flask) -> None:
         app.logger.info('RCM SaaS Application startup')
 
 
+# Create app instance for Gunicorn
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
     app.run(debug=True, host='0.0.0.0', port=5000)

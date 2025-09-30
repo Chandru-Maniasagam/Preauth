@@ -3,6 +3,7 @@ Firebase configuration for RCM SaaS Application
 """
 
 import os
+import json
 from typing import Dict, Any
 
 
@@ -22,6 +23,25 @@ class FirebaseConfig:
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
         "ServiceAccountKey.json"
     )
+    
+    @classmethod
+    def get_service_account_credentials(cls):
+        """Get service account credentials from environment variable or file"""
+        # First try to get from environment variable (for production deployment)
+        service_account_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY')
+        if service_account_json:
+            try:
+                return json.loads(service_account_json)
+            except json.JSONDecodeError:
+                pass
+        
+        # Fallback to file path (for local development)
+        if os.path.exists(cls.SERVICE_ACCOUNT_KEY_PATH):
+            with open(cls.SERVICE_ACCOUNT_KEY_PATH, 'r') as f:
+                return json.load(f)
+        
+        # If neither is available, return None
+        return None
     
     # Database Configuration
     DATABASE_URL = f"https://{PROJECT_ID}-default-rtdb.firebaseio.com/"
