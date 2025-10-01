@@ -14,9 +14,27 @@ v1_bp.register_blueprint(patients_bp, url_prefix='/patients')
 v1_bp.register_blueprint(claims_bp, url_prefix='/claims')
 
 # API Documentation endpoint
-@v1_bp.route('/', methods=['GET'])
+@v1_bp.route('/', methods=['GET', 'POST', 'OPTIONS'])
 def api_documentation():
     """API v1 documentation endpoint"""
+    from flask import request
+    
+    # Handle OPTIONS request for CORS preflight
+    if request.method == 'OPTIONS':
+        return '', 204
+    
+    # Handle POST requests - redirect to appropriate endpoint
+    if request.method == 'POST':
+        return jsonify({
+            'error': 'Invalid endpoint',
+            'message': 'POST requests to /api/v1/ are not supported. Please use specific endpoints like /api/v1/patients/ or /api/v1/claims/',
+            'available_endpoints': {
+                'patients': '/api/v1/patients/',
+                'claims': '/api/v1/claims/'
+            }
+        }), 400
+    
+    # Handle GET requests - return documentation
     return jsonify({
         'message': 'RCM SaaS Application API v1',
         'version': '1.0.0',

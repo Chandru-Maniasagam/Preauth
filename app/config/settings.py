@@ -11,7 +11,7 @@ class DevelopmentConfig:
     DEBUG = True
     TESTING = False
     LOG_LEVEL = 'DEBUG'
-    CORS_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000']
+    CORS_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173', 'http://127.0.0.1:5173']
     RATELIMIT_DEFAULT = "2000 per hour"
 
 
@@ -29,7 +29,7 @@ class TestingConfig:
     DEBUG = False
     TESTING = True
     LOG_LEVEL = 'DEBUG'
-    CORS_ORIGINS = ['http://localhost:3000']
+    CORS_ORIGINS = ['http://localhost:3000', 'http://localhost:5173']
     RATELIMIT_DEFAULT = "5000 per hour"
 
 
