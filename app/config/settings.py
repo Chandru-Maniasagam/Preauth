@@ -20,7 +20,7 @@ class ProductionConfig:
     DEBUG = False
     TESTING = False
     LOG_LEVEL = 'WARNING'
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '').split(',')
+    CORS_ORIGINS = [origin.strip() for origin in os.environ.get('CORS_ORIGINS', '*').split(',') if origin.strip()]
     RATELIMIT_DEFAULT = "1000 per hour"
 
 

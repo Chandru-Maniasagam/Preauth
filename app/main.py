@@ -83,6 +83,17 @@ def create_app(config_name: str = None) -> Flask:
     # Configure logging
     configure_logging(app)
     
+    # Add CORS error handler for 404s
+    @app.errorhandler(404)
+    def handle_404(error):
+        """Handle 404 errors with proper CORS headers"""
+        from flask import jsonify
+        return jsonify({
+            'error': 'Not Found',
+            'message': 'The requested resource was not found',
+            'status': 404
+        }), 404
+    
     # Root endpoint - API only, no frontend
     @app.route('/')
     def index():
