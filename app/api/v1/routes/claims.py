@@ -496,8 +496,22 @@ def get_claims():
         }), 200
         
     except Exception as e:
-        logging.error(f"Error getting claims: {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500
+        error_msg = str(e)
+        logging.error(f"Error getting claims: {error_msg}")
+        logging.error(f"Error type: {type(e).__name__}")
+        import traceback
+        logging.error(f"Traceback: {traceback.format_exc()}")
+        
+        # Return detailed error in development, generic in production
+        import os
+        if os.environ.get('FLASK_ENV') == 'development':
+            return jsonify({
+                'error': 'Internal server error',
+                'details': error_msg,
+                'type': type(e).__name__
+            }), 500
+        else:
+            return jsonify({'error': 'Internal server error'}), 500
 
 
 @claims_bp.route('/submit/<claim_id>', methods=['POST'])
@@ -559,6 +573,62 @@ def submit_claim(claim_id):
         return jsonify({
             'error': 'Internal server error',
             'message': 'Failed to submit claim'
+        }), 500
+
+
+@claims_bp.route('/debug', methods=['GET'])
+def debug_firebase():
+    """Debug endpoint to test Firebase connectivity and configuration"""
+    try:
+        import os
+        debug_info = {
+            'environment': os.environ.get('FLASK_ENV', 'unknown'),
+            'firebase_project_id': os.environ.get('FIREBASE_PROJECT_ID', 'not_set'),
+            'firebase_storage_bucket': os.environ.get('FIREBASE_STORAGE_BUCKET', 'not_set'),
+            'has_service_account_key': bool(os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY')),
+            'service_account_key_length': len(os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY', '')) if os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY') else 0
+        }
+        
+        # Test Firebase connection
+        try:
+            db = get_db()
+            debug_info['firebase_connection'] = 'success'
+            
+            # Test a simple query
+            test_collection = db.collection('test_connection')
+            test_doc = test_collection.document('debug_test')
+            test_doc.set({'timestamp': datetime.utcnow(), 'test': True})
+            test_doc.delete()
+            debug_info['firestore_write_test'] = 'success'
+            
+        except Exception as firebase_error:
+            debug_info['firebase_connection'] = 'failed'
+            debug_info['firebase_error'] = str(firebase_error)
+            debug_info['firebase_error_type'] = type(firebase_error).__name__
+        
+        # Test claims collection access
+        try:
+            db = get_db()
+            claims_ref = db.collection('claims')
+            # Just try to get a reference, don't actually query
+            debug_info['claims_collection_access'] = 'success'
+        except Exception as claims_error:
+            debug_info['claims_collection_access'] = 'failed'
+            debug_info['claims_error'] = str(claims_error)
+            debug_info['claims_error_type'] = type(claims_error).__name__
+        
+        return jsonify({
+            'status': 'debug_info',
+            'debug': debug_info
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        return jsonify({
+            'status': 'debug_failed',
+            'error': str(e),
+            'type': type(e).__name__,
+            'traceback': traceback.format_exc()
         }), 500
 
 

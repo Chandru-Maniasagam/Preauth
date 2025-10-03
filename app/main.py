@@ -14,9 +14,6 @@ from app.config import AppConfig, FirebaseConfig, StorageConfig
 from app.database.firebase_client import FirebaseClient
 from app.storage.firebase_storage import FirebaseStorageClient
 from app.api.v1.routes import v1_bp
-from Preauthform import preauth_form_bp
-from Preauthregistered_Notification import preauth_notification_bp
-from preauthprocess import preauth_process_bp
 
 
 def create_app(config_name: str = None) -> Flask:
@@ -76,9 +73,6 @@ def create_app(config_name: str = None) -> Flask:
     
     # Register blueprints
     app.register_blueprint(v1_bp, url_prefix=AppConfig.API_PREFIX)
-    app.register_blueprint(preauth_form_bp)
-    app.register_blueprint(preauth_notification_bp, url_prefix='/api/notifications')
-    app.register_blueprint(preauth_process_bp, url_prefix='/preauth-process')
     
     # Configure logging
     configure_logging(app)
@@ -109,11 +103,25 @@ def create_app(config_name: str = None) -> Flask:
             # Check if Firebase client is initialized
             firebase_status = 'healthy' if hasattr(app, 'firebase_client') else 'unhealthy'
             
+            # Test Firebase connection if available
+            firebase_health = 'unknown'
+            if hasattr(app, 'firebase_client') and app.firebase_client:
+                try:
+                    firebase_health = app.firebase_client.health_check()
+                except Exception as e:
+                    firebase_health = {'status': 'unhealthy', 'error': str(e)}
+            
             return {
                 'status': 'healthy',
                 'version': '1.0.0',
                 'environment': os.environ.get('FLASK_ENV', 'development'),
                 'firebase': firebase_status,
+                'firebase_health': firebase_health,
+                'environment_variables': {
+                    'FIREBASE_PROJECT_ID': bool(os.environ.get('FIREBASE_PROJECT_ID')),
+                    'FIREBASE_STORAGE_BUCKET': bool(os.environ.get('FIREBASE_STORAGE_BUCKET')),
+                    'FIREBASE_SERVICE_ACCOUNT_KEY': bool(os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY'))
+                },
                 'timestamp': str(datetime.now())
             }
         except Exception as e:
