@@ -58,6 +58,10 @@ class FirebaseClient:
             raise RuntimeError("Firebase not initialized")
         return self.db
     
+    def is_initialized(self) -> bool:
+        """Check if Firebase is properly initialized"""
+        return self.db is not None and self.app is not None
+    
     def get_storage_bucket(self) -> Any:
         """Get Storage bucket"""
         if self.bucket is None:

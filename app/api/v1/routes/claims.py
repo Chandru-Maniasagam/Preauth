@@ -32,7 +32,11 @@ def get_db():
     global db, firebase_client
     if db is None:
         firebase_client = FirebaseClient()
-        db = firebase_client.get_firestore_client()
+        if firebase_client.is_initialized():
+            db = firebase_client.get_firestore_client()
+        else:
+            # Return None to indicate Firebase is not available
+            return None
     return db
 
 
@@ -146,6 +150,16 @@ def get_specialities():
     """Get all available specialities"""
     try:
         db = get_db()
+        if db is None:
+            # Firebase not available, use mock data
+            from app.database.mock_data import MockDataService
+            specialities = MockDataService.get_mock_specialities()
+            return jsonify({
+                'specialities': specialities,
+                'note': 'Using mock data - Firebase not available'
+            }), 200
+        
+        # Firebase is available, use real data
         specialities_ref = db.collection('specialities')
         specialities = list(specialities_ref.where('is_active', '==', True).stream())
         
@@ -180,6 +194,21 @@ def get_doctors():
             return jsonify({'error': 'Hospital ID is required'}), 400
         
         db = get_db()
+        if db is None:
+            # Firebase not available, use mock data
+            from app.database.mock_data import MockDataService
+            mock_doctors = MockDataService.get_mock_doctors()
+            
+            # Filter by speciality if provided
+            if speciality_id:
+                mock_doctors = [d for d in mock_doctors if d.get('speciality_id') == speciality_id]
+            
+            return jsonify({
+                'doctors': mock_doctors,
+                'note': 'Using mock data - Firebase not available'
+            }), 200
+        
+        # Firebase is available, use real data
         doctors_ref = db.collection('doctors')
         
         # Filter by hospital
@@ -454,8 +483,45 @@ def get_claims():
         claim_type = request.args.get('claim_type', '')
         search = request.args.get('search', '')
         
-        # Build query
+        # Check if Firebase is available
         db = get_db()
+        if db is None:
+            # Firebase not available, use mock data
+            from app.database.mock_data import MockDataService
+            mock_claims = MockDataService.get_mock_claims()
+            
+            # Apply filters to mock data
+            filtered_claims = mock_claims
+            if status:
+                filtered_claims = [c for c in filtered_claims if c.get('status') == status]
+            if claim_type:
+                filtered_claims = [c for c in filtered_claims if c.get('claim_type') == claim_type]
+            if search:
+                filtered_claims = [c for c in filtered_claims if 
+                                 search.lower() in c.get('patient_name', '').lower() or
+                                 search.lower() in c.get('uhid', '').lower() or
+                                 search.lower() in c.get('claim_id', '').lower()]
+            
+            # Apply pagination
+            total_count = len(filtered_claims)
+            start_index = (page - 1) * per_page
+            end_index = start_index + per_page
+            paginated_claims = filtered_claims[start_index:end_index]
+            
+            return jsonify({
+                'claims': paginated_claims,
+                'pagination': {
+                    'page': page,
+                    'per_page': per_page,
+                    'total': total_count,
+                    'pages': (total_count + per_page - 1) // per_page,
+                    'has_next': end_index < total_count,
+                    'has_prev': page > 1
+                },
+                'note': 'Using mock data - Firebase not available'
+            }), 200
+        
+        # Firebase is available, use real data
         claims_ref = db.collection('claims')
         query = claims_ref.where('hospital_id', '==', hospital_id).where('is_active', '==', True)
         
@@ -632,6 +698,23 @@ def debug_firebase():
         }), 500
 
 
+@claims_bp.route('/test', methods=['GET'])
+def test_basic():
+    """Basic test endpoint without Firebase dependency"""
+    try:
+        return jsonify({
+            'status': 'success',
+            'message': 'Basic routing is working',
+            'timestamp': datetime.utcnow().isoformat()
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'type': type(e).__name__
+        }), 500
+
+
 @claims_bp.route('/payers', methods=['GET'])
 # @require_auth
 def get_payers():
@@ -640,8 +723,22 @@ def get_payers():
         hospital_id = request.headers.get('X-Hospital-ID', 'HOSP_001')
         payer_type = request.args.get('type', '')
         
-        # Query payers collection
         db = get_db()
+        if db is None:
+            # Firebase not available, use mock data
+            from app.database.mock_data import MockDataService
+            mock_payers = MockDataService.get_mock_payers()
+            
+            # Filter by payer type if provided
+            if payer_type:
+                mock_payers = [p for p in mock_payers if p.get('payer_type') == payer_type]
+            
+            return jsonify({
+                'payers': mock_payers,
+                'note': 'Using mock data - Firebase not available'
+            }), 200
+        
+        # Firebase is available, use real data
         payers_ref = db.collection('payers')
         query = payers_ref.where('hospital_id', '==', hospital_id).where('is_active', '==', True)
         

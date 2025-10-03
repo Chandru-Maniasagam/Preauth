@@ -1,0 +1,5 @@
+[33m7995a4c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Add comprehensive debugging for Firebase connectivity issues
+[33me87de8f[m Fix CORS configuration for production deployment
+[33m9ba88dd[m Fix CORS configuration for frontend communication
+[33mfb92d51[m Fix CORS: Set explicit origins in render.yaml and improve CORS parsing in main.py
+[33m694266e[m CORS: allow http://localhost:5173 with credentials; add /preauth-form/submit alias with OPTIONS preflight
