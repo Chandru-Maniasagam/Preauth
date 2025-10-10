@@ -1,0 +1,188 @@
+# Individual Curl Commands for Preauth Process API Testing
+
+# ===========================================
+# 1. SUBMIT PREAUTH REQUEST
+# ===========================================
+curl -X POST "http://localhost:5000/api/v1/preauth-process/submit" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive" \
+  -d '{
+    "patient_id": "PAT_001",
+    "preauth_id": "PA_2024_001",
+    "insurance_provider": "Apollo Munich Health Insurance",
+    "policy_number": "POL123456789",
+    "treatment_type": "Cardiac Surgery",
+    "diagnosis_code": "I25.9",
+    "estimated_cost": 500000.0,
+    "requested_amount": 500000.0,
+    "policy_holder_name": "John Doe",
+    "policy_holder_relation": "self",
+    "doctor_name": "Dr. Smith",
+    "hospital_name": "Apollo Hospital",
+    "remarks": "Urgent cardiac surgery required"
+  }'
+
+# ===========================================
+# 2. UPDATE STATUS - NEED MORE INFO
+# ===========================================
+curl -X PUT "http://localhost:5000/api/v1/preauth-process/update-status" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive" \
+  -d '{
+    "preauth_id": "PA_2024_001",
+    "new_status": "Need More Info",
+    "remarks": "Additional medical reports required",
+    "state_data": {
+      "required_documents": ["ECG Report", "Echocardiogram", "Blood Test Results"]
+    }
+  }'
+
+# ===========================================
+# 3. UPDATE STATUS - INFO SUBMITTED
+# ===========================================
+curl -X PUT "http://localhost:5000/api/v1/preauth-process/update-status" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive" \
+  -d '{
+    "preauth_id": "PA_2024_001",
+    "new_status": "Info Submitted",
+    "remarks": "All required documents submitted",
+    "state_data": {
+      "submitted_documents": ["ECG Report", "Echocardiogram", "Blood Test Results"]
+    }
+  }'
+
+# ===========================================
+# 4. UPDATE STATUS - PREAUTH APPROVED (PROCESSOR)
+# ===========================================
+curl -X PUT "http://localhost:5000/api/v1/preauth-process/update-status" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: processor_user" \
+  -H "X-User-Name: Processor User" \
+  -H "X-User-Role: processor" \
+  -d '{
+    "preauth_id": "PA_2024_001",
+    "new_status": "Preauth Approved",
+    "remarks": "Preauth approved after review",
+    "state_data": {
+      "approval_reference": "APP_REF_001",
+      "approved_amount": 450000.0
+    }
+  }'
+
+# ===========================================
+# 5. SUBMIT DISCHARGE INFORMATION
+# ===========================================
+curl -X POST "http://localhost:5000/api/v1/preauth-process/submit-discharge" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive" \
+  -d '{
+    "preauth_id": "PA_2024_001",
+    "discharge_data": {
+      "discharge_date": "2024-01-20T14:00:00Z",
+      "actual_cost": 480000.0,
+      "discharge_summary": "Patient discharged successfully after cardiac surgery",
+      "final_diagnosis": "I25.9 - Ischemic heart disease, unspecified"
+    }
+  }'
+
+# ===========================================
+# 6. UPDATE STATUS - DISCHARGE APPROVED (PROCESSOR)
+# ===========================================
+curl -X PUT "http://localhost:5000/api/v1/preauth-process/update-status" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: processor_user" \
+  -H "X-User-Name: Processor User" \
+  -H "X-User-Role: processor" \
+  -d '{
+    "preauth_id": "PA_2024_001",
+    "new_status": "Discharge Approved",
+    "remarks": "Discharge approved after verification",
+    "state_data": {
+      "final_approved_amount": 480000.0,
+      "settlement_reference": "SET_REF_001"
+    }
+  }'
+
+# ===========================================
+# 7. GET CURRENT STATUS
+# ===========================================
+curl -X GET "http://localhost:5000/api/v1/preauth-process/current-status/PA_2024_001" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive"
+
+# ===========================================
+# 8. GET STATUS HISTORY
+# ===========================================
+curl -X GET "http://localhost:5000/api/v1/preauth-process/status-history/PA_2024_001" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive"
+
+# ===========================================
+# 9. LIST PREAUTH REQUESTS
+# ===========================================
+curl -X GET "http://localhost:5000/api/v1/preauth-process/list" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive"
+
+# ===========================================
+# 10. LIST WITH FILTERS
+# ===========================================
+curl -X GET "http://localhost:5000/api/v1/preauth-process/list?status=Preauth%20Registered&limit=5" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive"
+
+# ===========================================
+# ERROR TESTING
+# ===========================================
+
+# Test Invalid Status Transition
+curl -X PUT "http://localhost:5000/api/v1/preauth-process/update-status" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive" \
+  -d '{
+    "preauth_id": "PA_2024_001",
+    "new_status": "Need More Info",
+    "remarks": "This should fail - invalid transition"
+  }'
+
+# Test Missing Required Fields
+curl -X POST "http://localhost:5000/api/v1/preauth-process/submit" \
+  -H "Content-Type: application/json" \
+  -H "X-Hospital-ID: HOSP_001" \
+  -H "X-User-ID: test_user" \
+  -H "X-User-Name: Test User" \
+  -H "X-User-Role: preauth_executive" \
+  -d '{
+    "patient_id": "PAT_002",
+    "preauth_id": "PA_2024_002"
+  }'

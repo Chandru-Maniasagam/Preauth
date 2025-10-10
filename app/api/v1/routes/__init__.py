@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify
 from .patients import patients_bp
 from .claims import claims_bp
 from .health import health_bp
+from .preauthprocess import preauthprocess_bp
 
 # Create main v1 blueprint
 v1_bp = Blueprint('v1', __name__)
@@ -14,6 +15,7 @@ v1_bp = Blueprint('v1', __name__)
 v1_bp.register_blueprint(patients_bp, url_prefix='/patients')
 v1_bp.register_blueprint(claims_bp, url_prefix='/claims')
 v1_bp.register_blueprint(health_bp, url_prefix='/health')
+v1_bp.register_blueprint(preauthprocess_bp, url_prefix='/preauth-process')
 
 # API Documentation endpoint
 @v1_bp.route('/', methods=['GET'])
@@ -55,6 +57,21 @@ def api_documentation():
                 'base_url': '/health',
                 'methods': {
                     'GET /': 'Health check endpoint'
+                }
+            },
+            'preauth-process': {
+                'base_url': '/api/v1/preauth-process',
+                'methods': {
+                    'POST /submit': 'Submit a new preauth request (starts with Preauth Registered status)',
+                    'PUT /update-status': 'Update preauth status based on user role',
+                    'GET /status-history/<preauth_id>': 'Get status history for a preauth request',
+                    'GET /current-status/<preauth_id>': 'Get current status and allowed transitions',
+                    'GET /list': 'List preauth requests with filtering options',
+                    'POST /submit-discharge': 'Submit discharge information for approved preauth'
+                },
+                'roles': {
+                    'preauth_executive': 'Can transition: Preauth Registered -> Need More Info/Preauth Approved/Preauth Denial, Need More Info -> Info Submitted, Discharge Submitted -> Discharge NMI/Discharge Approved/Discharge Denial, Discharge NMI -> Discharge NMI Submitted',
+                    'processor': 'Can transition: Preauth Registered -> Need More Info/Preauth Approved/Preauth Denial, Discharge Submitted -> Discharge NMI/Discharge Approved/Discharge Denial'
                 }
             }
         },
